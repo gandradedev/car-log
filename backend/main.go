@@ -14,8 +14,11 @@ import (
 	"net/http"
 
 	_ "github.com/gaaandrade/car-log/docs"
+	vehicleusecase "github.com/gaaandrade/car-log/internal/application/usecase/vehicle"
 	"github.com/gaaandrade/car-log/internal/configuration/database"
 	"github.com/gaaandrade/car-log/internal/configuration/swagger"
+	"github.com/gaaandrade/car-log/internal/infrastructure/handler"
+	infrarepo "github.com/gaaandrade/car-log/internal/infrastructure/repository"
 	"github.com/gaaandrade/car-log/internal/infrastructure/routes"
 )
 
@@ -26,8 +29,19 @@ func main() {
 	}
 	defer db.Close()
 
+	repo := infrarepo.NewVehicleRepository(db)
+
+	createUC := vehicleusecase.NewCreateVehicleUseCase(repo)
+	listUC := vehicleusecase.NewListVehiclesUseCase(repo)
+	getUC := vehicleusecase.NewGetVehicleUseCase(repo)
+	updateUC := vehicleusecase.NewUpdateVehicleUseCase(repo)
+	deleteUC := vehicleusecase.NewDeleteVehicleUseCase(repo)
+	updateKMUC := vehicleusecase.NewUpdateVehicleKMUseCase(repo)
+
+	h := handler.NewVehicleHandler(createUC, listUC, getUC, updateUC, deleteUC, updateKMUC)
+
 	mux := http.NewServeMux()
-	routes.Register(mux)
+	routes.RegisterVehicleRoutes(mux, h)
 	swagger.RegisterSwaggerRoutes(mux)
 
 	log.Println("Server running at http://localhost:8080")

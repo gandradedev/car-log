@@ -1,4 +1,77 @@
 basePath: /
+definitions:
+  dto.CreateVehicleRequestDTO:
+    properties:
+      brand:
+        type: string
+      current_km:
+        type: integer
+      model:
+        type: string
+      name:
+        type: string
+      plate:
+        type: string
+      year:
+        type: integer
+    type: object
+  dto.GetVehicleResponseDTO:
+    properties:
+      brand:
+        type: string
+      created_at:
+        type: string
+      current_km:
+        type: integer
+      id:
+        type: integer
+      model:
+        type: string
+      name:
+        type: string
+      plate:
+        type: string
+      updated_at:
+        type: string
+      year:
+        type: integer
+    type: object
+  dto.ListVehiclesResponseDTO:
+    properties:
+      total:
+        type: integer
+      vehicles:
+        items:
+          $ref: '#/definitions/dto.GetVehicleResponseDTO'
+        type: array
+    type: object
+  dto.UpdateVehicleKMRequestDTO:
+    properties:
+      current_km:
+        type: integer
+    type: object
+  dto.UpdateVehicleRequestDTO:
+    properties:
+      brand:
+        type: string
+      current_km:
+        type: integer
+      model:
+        type: string
+      name:
+        type: string
+      plate:
+        type: string
+      year:
+        type: integer
+    type: object
+  errors.CustomError:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -6,5 +79,163 @@ info:
   description: REST API for managing vehicle maintenance history.
   title: Car Log API
   version: "1.0"
-paths: {}
+paths:
+  /vehicles:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ListVehiclesResponseDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.CustomError'
+      summary: List all vehicles
+      tags:
+      - vehicles
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Vehicle data
+        in: body
+        name: vehicle
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateVehicleRequestDTO'
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.CustomError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.CustomError'
+      summary: Register a new vehicle
+      tags:
+      - vehicles
+  /vehicles/{id}:
+    delete:
+      parameters:
+      - description: Vehicle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.CustomError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.CustomError'
+      summary: Remove a vehicle
+      tags:
+      - vehicles
+    get:
+      parameters:
+      - description: Vehicle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GetVehicleResponseDTO'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.CustomError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.CustomError'
+      summary: Fetch a vehicle by ID
+      tags:
+      - vehicles
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Vehicle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated data
+        in: body
+        name: vehicle
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateVehicleRequestDTO'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.CustomError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.CustomError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.CustomError'
+      summary: Update a vehicle
+      tags:
+      - vehicles
+  /vehicles/{id}/km:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Vehicle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: KM data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateVehicleKMRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GetVehicleResponseDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.CustomError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.CustomError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.CustomError'
+      summary: Update vehicle km
+      tags:
+      - vehicles
 swagger: "2.0"
