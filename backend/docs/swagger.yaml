@@ -1,0 +1,10 @@
+basePath: /
+host: localhost:8080
+info:
+  contact:
+    name: Gabriel Andrade
+  description: REST API for managing vehicle maintenance history.
+  title: Car Log API
+  version: "1.0"
+paths: {}
+swagger: "2.0"
