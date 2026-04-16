@@ -1,5 +1,14 @@
 basePath: /
 definitions:
+  dto.CreateMaintenanceTypeRequestDTO:
+    properties:
+      interval_km:
+        type: integer
+      interval_months:
+        type: integer
+      name:
+        type: string
+    type: object
   dto.CreateVehicleRequestDTO:
     properties:
       brand:
@@ -14,6 +23,21 @@ definitions:
         type: string
       year:
         type: integer
+    type: object
+  dto.GetMaintenanceTypeResponseDTO:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      interval_km:
+        type: integer
+      interval_months:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
     type: object
   dto.GetVehicleResponseDTO:
     properties:
@@ -36,6 +60,15 @@ definitions:
       year:
         type: integer
     type: object
+  dto.ListMaintenanceTypesResponseDTO:
+    properties:
+      maintenance_types:
+        items:
+          $ref: '#/definitions/dto.GetMaintenanceTypeResponseDTO'
+        type: array
+      total:
+        type: integer
+    type: object
   dto.ListVehiclesResponseDTO:
     properties:
       total:
@@ -44,6 +77,15 @@ definitions:
         items:
           $ref: '#/definitions/dto.GetVehicleResponseDTO'
         type: array
+    type: object
+  dto.UpdateMaintenanceTypeRequestDTO:
+    properties:
+      interval_km:
+        type: integer
+      interval_months:
+        type: integer
+      name:
+        type: string
     type: object
   dto.UpdateVehicleKMRequestDTO:
     properties:
@@ -80,6 +122,101 @@ info:
   title: Car Log API
   version: "1.0"
 paths:
+  /maintenance-types:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ListMaintenanceTypesResponseDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.CustomError'
+      summary: List all maintenance types
+      tags:
+      - maintenance types
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Maintenance type data
+        in: body
+        name: maintenance_type
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateMaintenanceTypeRequestDTO'
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.CustomError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.CustomError'
+      summary: Register a new maintenance type
+      tags:
+      - maintenance types
+  /maintenance-types/{id}:
+    delete:
+      parameters:
+      - description: Maintenance type ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.CustomError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.CustomError'
+      summary: Remove a maintenance type
+      tags:
+      - maintenance types
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Maintenance type ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated data
+        in: body
+        name: maintenance_type
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateMaintenanceTypeRequestDTO'
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.CustomError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.CustomError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.CustomError'
+      summary: Update a maintenance type
+      tags:
+      - maintenance types
   /vehicles:
     get:
       produces:

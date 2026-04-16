@@ -17,6 +17,152 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/maintenance-types": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "maintenance types"
+                ],
+                "summary": "List all maintenance types",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ListMaintenanceTypesResponseDTO"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.CustomError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "maintenance types"
+                ],
+                "summary": "Register a new maintenance type",
+                "parameters": [
+                    {
+                        "description": "Maintenance type data",
+                        "name": "maintenance_type",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateMaintenanceTypeRequestDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errors.CustomError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.CustomError"
+                        }
+                    }
+                }
+            }
+        },
+        "/maintenance-types/{id}": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "maintenance types"
+                ],
+                "summary": "Update a maintenance type",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Maintenance type ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated data",
+                        "name": "maintenance_type",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateMaintenanceTypeRequestDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errors.CustomError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errors.CustomError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.CustomError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "maintenance types"
+                ],
+                "summary": "Remove a maintenance type",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Maintenance type ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errors.CustomError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.CustomError"
+                        }
+                    }
+                }
+            }
+        },
         "/vehicles": {
             "get": {
                 "produces": [
@@ -261,6 +407,20 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "dto.CreateMaintenanceTypeRequestDTO": {
+            "type": "object",
+            "properties": {
+                "interval_km": {
+                    "type": "integer"
+                },
+                "interval_months": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.CreateVehicleRequestDTO": {
             "type": "object",
             "properties": {
@@ -281,6 +441,29 @@ const docTemplate = `{
                 },
                 "year": {
                     "type": "integer"
+                }
+            }
+        },
+        "dto.GetMaintenanceTypeResponseDTO": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "interval_km": {
+                    "type": "integer"
+                },
+                "interval_months": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
                 }
             }
         },
@@ -316,6 +499,20 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.ListMaintenanceTypesResponseDTO": {
+            "type": "object",
+            "properties": {
+                "maintenance_types": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.GetMaintenanceTypeResponseDTO"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
         "dto.ListVehiclesResponseDTO": {
             "type": "object",
             "properties": {
@@ -327,6 +524,20 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/dto.GetVehicleResponseDTO"
                     }
+                }
+            }
+        },
+        "dto.UpdateMaintenanceTypeRequestDTO": {
+            "type": "object",
+            "properties": {
+                "interval_km": {
+                    "type": "integer"
+                },
+                "interval_months": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },

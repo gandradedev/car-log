@@ -17,6 +17,7 @@ help:
 	@echo "  backend-build    Compile the Go binary"
 	@echo "  backend-test     Run all Go tests"
 	@echo "  backend-tidy     Tidy Go module dependencies"
+	@echo "  backend-swagger  Regenerate Swagger docs"
 	@echo "  backend-clean    Remove compiled binary"
 	@echo ""
 	@echo "Frontend"
@@ -41,6 +42,9 @@ backend-test:
 
 backend-tidy:
 	cd $(BACKEND_DIR) && go mod tidy
+
+backend-swagger:
+	cd $(BACKEND_DIR) && swag init -g main.go --output docs
 
 backend-clean:
 	rm -f $(BINARY)
