@@ -3,12 +3,20 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
 
 	_ "modernc.org/sqlite"
 )
 
-func New(path string) (*sql.DB, error) {
-	db, err := sql.Open("sqlite", path)
+type Config struct {
+	Path              string
+	RunStartupScripts bool
+}
+
+func New(cfg Config) (*sql.DB, error) {
+	db, err := sql.Open("sqlite", cfg.Path)
 	if err != nil {
 		return nil, fmt.Errorf("opening database: %w", err)
 	}
@@ -26,6 +34,13 @@ func New(path string) (*sql.DB, error) {
 	if err := migrate(db); err != nil {
 		db.Close()
 		return nil, err
+	}
+
+	if cfg.RunStartupScripts {
+		if err := runStartupScripts(db); err != nil {
+			db.Close()
+			return nil, err
+		}
 	}
 
 	return db, nil
@@ -86,4 +101,44 @@ func migrate(db *sql.DB) error {
 	}
 
 	return nil
+}
+
+func runStartupScripts(db *sql.DB) error {
+	entries, err := os.ReadDir("migrations")
+	if err != nil {
+		return fmt.Errorf("reading migrations directory: %w", err)
+	}
+	for _, entry := range entries {
+		if entry.IsDir() || filepath.Ext(entry.Name()) != ".sql" {
+			continue
+		}
+		content, err := os.ReadFile(filepath.Join("migrations", entry.Name()))
+		if err != nil {
+			return fmt.Errorf("reading migration file %s: %w", entry.Name(), err)
+		}
+		if err := execSQL(db, string(content)); err != nil {
+			return fmt.Errorf("executing migration file %s: %w", entry.Name(), err)
+		}
+	}
+	return nil
+}
+
+func execSQL(db *sql.DB, sql string) error {
+	tx, err := db.Begin()
+	if err != nil {
+		return fmt.Errorf("starting transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	for _, stmt := range strings.Split(sql, ";") {
+		stmt = strings.TrimSpace(stmt)
+		if stmt == "" {
+			continue
+		}
+		if _, err := tx.Exec(stmt); err != nil {
+			return fmt.Errorf("executing statement: %w", err)
+		}
+	}
+
+	return tx.Commit()
 }
